@@ -14,10 +14,13 @@ import Seo from "../components/Seo";
 
 export default function Home() {
   // Only show the loading animation on a fresh visit, not when navigating
-  // back to "/" from another route.
+  // back to "/" from another route. Skip it entirely for users who ask the
+  // OS for reduced motion (WCAG 2.3.3 — animation can sicken vestibular users).
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(
-    () => !sessionStorage.getItem("encytics.visited")
+    () =>
+      !sessionStorage.getItem("encytics.visited") &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 
   const finish = () => {

@@ -252,11 +252,13 @@ export default function Contact() {
                     <path d="M4 10L8 14L16 6" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <h4 className="font-display font-bold text-xl text-text-primary mb-2">We'll be in touch!</h4>
+                <h4 className="font-display font-bold text-xl text-text-primary mb-2">
+                  {site.contactEndpoint ? "We'll be in touch!" : "One more step…"}
+                </h4>
                 <p className="font-body text-sm text-muted">
                   {site.contactEndpoint
                     ? "Thanks — we've received your request and will reply within 24 hours."
-                    : "Your email draft is ready — hit send and we'll reply within 24 hours."}
+                    : "Your email draft is ready — please ensure you hit 'Send' in your mail app!"}
                 </p>
               </motion.div>
             )}

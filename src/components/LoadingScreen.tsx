@@ -12,7 +12,9 @@ export default function LoadingScreen({ onComplete }: Props) {
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    const duration = 2800;
+    // Keep the intro under 1.2s total — every extra second of forced
+    // loading measurably increases bounce rate and hurts Core Web Vitals.
+    const duration = 1100;
     const startTime = Date.now();
     let raf: number;
 
@@ -25,7 +27,7 @@ export default function LoadingScreen({ onComplete }: Props) {
       if (progress < 1) {
         raf = requestAnimationFrame(tick);
       } else {
-        setTimeout(() => onComplete(), 300);
+        setTimeout(() => onComplete(), 100);
       }
     };
 
@@ -36,7 +38,7 @@ export default function LoadingScreen({ onComplete }: Props) {
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((i) => (i + 1) % words.length);
-    }, 700);
+    }, 550);
     return () => clearInterval(interval);
   }, []);
 
