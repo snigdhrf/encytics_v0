@@ -1,0 +1,5 @@
+# macOS junk
+.DS_Store
+
+# The application lives in encytics-ai/ and carries its own .gitignore
+# (node_modules, dist, .env, etc. are ignored there).
