@@ -12,9 +12,10 @@ export default function LoadingScreen({ onComplete }: Props) {
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    // Keep the intro under 1.2s total — every extra second of forced
-    // loading measurably increases bounce rate and hurts Core Web Vitals.
-    const duration = 1100;
+    // Keep the intro short — every extra second of forced loading
+    // measurably increases bounce rate and hurts Core Web Vitals.
+    // (~1.7s total with the exit beat; words get ~400ms each.)
+    const duration = 1600;
     const startTime = Date.now();
     let raf: number;
 

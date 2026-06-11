@@ -140,8 +140,14 @@ export default function Hero() {
           </h1>
         </motion.div>
 
-        {/* Role cycling */}
-        <div className="mb-8 h-8 flex items-center justify-center gap-2">
+        {/* Role cycling — enters between the headline and the description so
+            it never appears before the headline on a refresh */}
+        <motion.div
+          className="mb-8 h-8 flex items-center justify-center gap-2"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6, ease: easeOut }}
+        >
           <span className="font-body text-muted text-base">Specializing in</span>
           <AnimatePresence mode="wait">
             <motion.span
@@ -155,7 +161,7 @@ export default function Hero() {
               {roles[roleIdx]}
             </motion.span>
           </AnimatePresence>
-        </div>
+        </motion.div>
 
         {/* Description */}
         <motion.div
