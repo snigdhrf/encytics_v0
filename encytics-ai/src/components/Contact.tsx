@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
-import gsap from "gsap";
 import { site } from "../config/site";
 
 const engagements = [
@@ -49,7 +48,6 @@ type Status = "idle" | "submitting" | "success" | "error";
 
 export default function Contact() {
   const ref = useRef<HTMLDivElement>(null);
-  const marqueeRef = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
   const [name, setName] = useState("");
@@ -57,11 +55,6 @@ export default function Contact() {
   const [challenge, setChallenge] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!marqueeRef.current) return;
-    gsap.to(marqueeRef.current, { xPercent: -50, duration: 35, ease: "none", repeat: -1 });
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,9 +108,10 @@ export default function Contact() {
     <section id="contact" className="bg-bg relative overflow-hidden">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-stroke to-transparent" />
 
-      {/* Marquee strip */}
+      {/* Marquee strip — pure CSS (tailwind `marquee` keyframes); stops for
+          users with prefers-reduced-motion */}
       <div className="py-5 border-b border-stroke overflow-hidden">
-        <div ref={marqueeRef} className="flex whitespace-nowrap" style={{ width: "200%" }}>
+        <div className="flex whitespace-nowrap animate-marquee motion-reduce:animate-none" style={{ width: "200%" }}>
           {Array(20).fill("ENGINEER • ANALYZE • PREDICT • TRANSFORM • ").map((text, i) => (
             <span key={i} className="font-display font-bold text-sm text-stroke tracking-[0.2em] uppercase mr-0">
               {text}

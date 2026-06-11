@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import gsap from "gsap";
 
 const roles = ["Data Engineering", "AI & Machine Learning", "Data Analytics", "Data Strategy"];
+
+// Matches GSAP's power3.out, which the intro timeline used before the
+// GSAP → Framer Motion consolidation.
+const easeOut = [0.215, 0.61, 0.355, 1] as const;
 
 // Animated mini data visualization
 function DataViz() {
@@ -42,16 +45,6 @@ function LiveCounter({ value, label }: { value: string; label: string }) {
 
 export default function Hero() {
   const [roleIdx, setRoleIdx] = useState(0);
-  const headlineRef = useRef<HTMLDivElement>(null);
-  const subRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.fromTo(headlineRef.current, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, delay: 0.15 });
-    tl.fromTo(subRef.current, { y: 30, opacity: 0, filter: "blur(8px)" }, { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.9 }, "-=0.6");
-    tl.fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.4");
-  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setRoleIdx((i) => (i + 1) % roles.length), 2500);
@@ -130,7 +123,12 @@ export default function Hero() {
         </motion.div>
 
         {/* Headline */}
-        <div ref={headlineRef} className="mb-6">
+        <motion.div
+          className="mb-6"
+          initial={{ y: 60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15, duration: 1.1, ease: easeOut }}
+        >
           <h1 className="font-display font-bold text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight text-text-primary">
             Turn your data into
             <br />
@@ -140,7 +138,7 @@ export default function Hero() {
               </span>
             </span>
           </h1>
-        </div>
+        </motion.div>
 
         {/* Role cycling */}
         <div className="mb-8 h-8 flex items-center justify-center gap-2">
@@ -160,16 +158,25 @@ export default function Hero() {
         </div>
 
         {/* Description */}
-        <div ref={subRef}>
+        <motion.div
+          initial={{ y: 30, opacity: 0, filter: "blur(8px)" }}
+          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+          transition={{ delay: 0.65, duration: 0.9, ease: easeOut }}
+        >
           <p className="font-body text-muted text-lg max-w-2xl mb-12 leading-relaxed">
-            We transform raw data into actionable intelligence — building pipelines, 
-            deploying AI models, and designing analytics systems that drive decisions 
+            We transform raw data into actionable intelligence — building pipelines,
+            deploying AI models, and designing analytics systems that drive decisions
             at enterprise scale.
           </p>
-        </div>
+        </motion.div>
 
         {/* CTAs */}
-        <div ref={ctaRef} className="flex flex-col sm:flex-row items-center gap-4">
+        <motion.div
+          className="flex flex-col sm:flex-row items-center gap-4"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.15, duration: 0.7, ease: easeOut }}
+        >
           <motion.a
             href="#services"
             className="relative group rounded-full text-base font-body font-semibold px-8 py-3.5 overflow-hidden"
@@ -189,7 +196,7 @@ export default function Hero() {
             <span className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative z-10">View Case Studies</span>
           </motion.a>
-        </div>
+        </motion.div>
 
         {/* Stats row */}
         <motion.div
