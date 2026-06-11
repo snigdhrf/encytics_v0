@@ -12,9 +12,10 @@ export default function LoadingScreen({ onComplete }: Props) {
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    // Keep the intro under 1.2s total — every extra second of forced
-    // loading measurably increases bounce rate and hurts Core Web Vitals.
-    const duration = 1100;
+    // Keep the intro short — every extra second of forced loading
+    // measurably increases bounce rate and hurts Core Web Vitals.
+    // (~1.7s total with the exit beat; words get ~400ms each.)
+    const duration = 1600;
     const startTime = Date.now();
     let raf: number;
 
@@ -23,6 +24,9 @@ export default function LoadingScreen({ onComplete }: Props) {
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(eased * 100));
+      // Words ride the progress bar so the full sequence always plays within
+      // the short intro, ending on the last word exactly at 100%.
+      setWordIndex(Math.min(words.length - 1, Math.floor(progress * words.length)));
 
       if (progress < 1) {
         raf = requestAnimationFrame(tick);
@@ -34,13 +38,6 @@ export default function LoadingScreen({ onComplete }: Props) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [onComplete]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWordIndex((i) => (i + 1) % words.length);
-    }, 550);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <motion.div
@@ -92,7 +89,7 @@ export default function LoadingScreen({ onComplete }: Props) {
             initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -16, filter: "blur(8px)" }}
-            transition={{ duration: 0.35 }}
+            transition={{ duration: 0.18 }}
           >
             {words[wordIndex]}
           </motion.div>

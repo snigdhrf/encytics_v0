@@ -15,7 +15,7 @@
 // rules live in the app layer; the RLS policies in the migration are interim.
 
 import { useEffect, useSyncExternalStore } from "react";
-import { isSupabaseConfigured, supabase } from "./supabase";
+import { isSupabaseConfigured, getSupabase } from "./supabase";
 import type { CaseMetric, CaseStudy, CaseStudyStatus } from "./types";
 
 const TABLE = "case_studies";
@@ -110,6 +110,7 @@ export async function refresh(): Promise<void> {
     return;
   }
   setState({ loading: true, error: "" });
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from(TABLE)
     .select("*")
@@ -142,6 +143,7 @@ function assertConfigured() {
  */
 export async function getBySlug(slug: string): Promise<CaseStudy | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from(TABLE)
     .select("*")
@@ -170,6 +172,7 @@ export interface CaseStudyInput {
 // backstop; this loop just picks a free suffix up front.
 async function uniqueSlug(title: string): Promise<string> {
   const base = slugify(title) || `case-${Date.now().toString(36)}`;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from(TABLE)
     .select("slug")
@@ -193,6 +196,7 @@ export async function create(
 ): Promise<CaseStudy> {
   assertConfigured();
   const slug = await uniqueSlug(input.title);
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from(TABLE)
     .insert({
@@ -244,6 +248,7 @@ export async function update(
   if (!opts.isAdmin && current?.status === "published") {
     patch.status = "pending";
   }
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from(TABLE)
     .update(patch)
@@ -265,6 +270,7 @@ export async function setStatus(
   if (!opts.isAdmin) {
     throw new Error("Only admins can change publication status.");
   }
+  const supabase = await getSupabase();
   const { error } = await supabase.from(TABLE).update({ status }).eq("id", id);
   if (error) throw new Error(`Could not change status: ${error.message}`);
   await refresh();
@@ -280,6 +286,7 @@ export async function remove(id: string, opts: { isAdmin: boolean }): Promise<vo
   if (!opts.isAdmin) {
     throw new Error("Only admins can delete case studies.");
   }
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from(TABLE)
     .update({ deleted_at: new Date().toISOString() })
