@@ -86,12 +86,21 @@ export default function Contact() {
     }
 
     setStatus("submitting");
-    try {
-      const res = await fetch(site.contactEndpoint, {
+    const post = () =>
+      fetch(site.contactEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(10_000),
       });
+    try {
+      let res: Response;
+      try {
+        res = await post();
+      } catch {
+        // One retry on network failure / timeout before giving up.
+        res = await post();
+      }
       if (res.ok) {
         setStatus("success");
       } else {

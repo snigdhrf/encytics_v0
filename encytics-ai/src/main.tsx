@@ -14,6 +14,15 @@ import '@fontsource/jetbrains-mono/400.css'
 import './index.css'
 import App from './App.tsx'
 
+// Sentry error monitoring — opt-in via VITE_SENTRY_DSN. The SDK is imported
+// dynamically so it never ships in the bundle when no DSN is configured.
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN
+if (sentryDsn) {
+  import('@sentry/react').then((Sentry) => {
+    Sentry.init({ dsn: sentryDsn })
+  })
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
