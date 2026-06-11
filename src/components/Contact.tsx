@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
+import { site } from "../config/site";
 
 const engagements = [
   { label: "Project-based", desc: "Defined scope, timeline, and deliverables" },
@@ -9,32 +11,104 @@ const engagements = [
   { label: "Training & Enablement", desc: "Upskill your team on modern data practices" },
 ];
 
-const footerLinks = {
-  Services: ["Data Engineering", "AI & Machine Learning", "Data Analytics", "Data Strategy", "Cloud & Infra"],
-  Company: ["About", "Case Studies", "Blog", "Careers", "Contact"],
-  Resources: ["Data Maturity Assessment", "Tech Stack Guide", "ROI Calculator", "Open Source"],
+// type: "hash" = in-page anchor, "route" = client route, "mail" = mailto
+type FooterLink = { label: string; href: string; type: "hash" | "route" | "mail" };
+
+const footerLinks: Record<string, FooterLink[]> = {
+  Services: [
+    { label: "Data Engineering", href: "#services", type: "hash" },
+    { label: "AI & Machine Learning", href: "#services", type: "hash" },
+    { label: "Data Analytics", href: "#services", type: "hash" },
+    { label: "Data Strategy", href: "#services", type: "hash" },
+    { label: "Cloud & Infra", href: "#services", type: "hash" },
+  ],
+  Company: [
+    { label: "About", href: "#about", type: "hash" },
+    { label: "Case Studies", href: "/case-studies", type: "route" },
+    { label: "Blog", href: "/blog", type: "route" },
+    { label: "Careers", href: "/careers", type: "route" },
+    { label: "Contact", href: "#contact", type: "hash" },
+  ],
+  Resources: [
+    { label: "Data Maturity Assessment", href: "#contact", type: "hash" },
+    { label: "Tech Stack Guide", href: "#contact", type: "hash" },
+    { label: "ROI Calculator", href: "#contact", type: "hash" },
+    { label: "Email Us", href: `mailto:${site.email}`, type: "mail" },
+  ],
 };
+
+function FooterAnchor({ link }: { link: FooterLink }) {
+  const cls =
+    "font-body text-sm text-muted hover:text-text-primary transition-colors";
+  if (link.type === "route")
+    return <Link to={link.href} className={cls}>{link.label}</Link>;
+  return <a href={link.href} className={cls}>{link.label}</a>;
+}
+
+type Status = "idle" | "submitting" | "success" | "error";
 
 export default function Contact() {
   const ref = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
-  const [submitted, setSubmitted] = useState(false);
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [challenge, setChallenge] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!marqueeRef.current) return;
-    gsap.to(marqueeRef.current, {
-      xPercent: -50,
-      duration: 35,
-      ease: "none",
-      repeat: -1,
-    });
+    gsap.to(marqueeRef.current, { xPercent: -50, duration: 35, ease: "none", repeat: -1 });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) setSubmitted(true);
+    setError("");
+
+    const trimmed = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    const payload = {
+      name: name.trim(),
+      email: trimmed,
+      challenge,
+      _subject: `New data audit request from ${trimmed}`,
+    };
+
+    // No backend endpoint configured → hand off to the user's mail client.
+    if (!site.contactEndpoint) {
+      const body = encodeURIComponent(
+        `Name: ${payload.name}\nEmail: ${payload.email}\nChallenge: ${challenge || "—"}`
+      );
+      window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
+        "Free data audit request"
+      )}&body=${body}`;
+      setStatus("success");
+      return;
+    }
+
+    setStatus("submitting");
+    try {
+      const res = await fetch(site.contactEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+        setError("Something went wrong sending your request. Please email us directly.");
+      }
+    } catch {
+      setStatus("error");
+      setError("Network error. Please email us directly.");
+    }
   };
 
   return (
@@ -71,7 +145,6 @@ export default function Contact() {
               Tell us about your data challenge — we'll respond within 24 hours with initial thoughts on how we'd approach it.
             </p>
 
-            {/* Engagement models */}
             <div className="space-y-3">
               {engagements.map((e, i) => (
                 <motion.div
@@ -91,7 +164,7 @@ export default function Contact() {
             </div>
           </motion.div>
 
-          {/* Form / CTA */}
+          {/* Form */}
           <motion.div
             className="bg-surface border border-stroke rounded-2xl p-7 relative overflow-hidden"
             initial={{ opacity: 0, y: 30 }}
@@ -100,13 +173,29 @@ export default function Contact() {
           >
             <div className="absolute inset-x-0 top-0 h-px accent-gradient" />
 
-            {!submitted ? (
-              <div>
+            {status !== "success" ? (
+              <form onSubmit={handleSubmit}>
                 <h3 className="font-display font-bold text-xl text-text-primary mb-6">
                   Start with a free data audit
                 </h3>
 
+                {error && (
+                  <div className="font-body text-sm text-rose-400 bg-rose-400/10 border border-rose-400/20 rounded-xl px-4 py-2.5 mb-4">
+                    {error}
+                  </div>
+                )}
+
                 <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="font-mono text-xs text-muted tracking-wider block mb-2">Name</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Jane Doe"
+                      className="w-full bg-surface-2 border border-stroke rounded-xl px-4 py-3 font-body text-sm text-text-primary placeholder:text-muted/40 focus:outline-none focus:border-accent/40 transition-colors"
+                    />
+                  </div>
                   <div>
                     <label className="font-mono text-xs text-muted tracking-wider block mb-2">Company Email</label>
                     <input
@@ -119,7 +208,11 @@ export default function Contact() {
                   </div>
                   <div>
                     <label className="font-mono text-xs text-muted tracking-wider block mb-2">Main Challenge</label>
-                    <select className="w-full bg-surface-2 border border-stroke rounded-xl px-4 py-3 font-body text-sm text-text-primary focus:outline-none focus:border-accent/40 transition-colors appearance-none">
+                    <select
+                      value={challenge}
+                      onChange={(e) => setChallenge(e.target.value)}
+                      className="w-full bg-surface-2 border border-stroke rounded-xl px-4 py-3 font-body text-sm text-text-primary focus:outline-none focus:border-accent/40 transition-colors appearance-none"
+                    >
                       <option value="" className="bg-surface">Select one...</option>
                       <option value="pipeline" className="bg-surface">Slow/broken data pipelines</option>
                       <option value="ml" className="bg-surface">Building AI/ML capabilities</option>
@@ -131,40 +224,49 @@ export default function Contact() {
                 </div>
 
                 <motion.button
-                  onClick={handleSubmit}
-                  className="relative w-full rounded-xl py-3.5 font-body font-semibold text-bg overflow-hidden"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="relative w-full rounded-xl py-3.5 font-body font-semibold text-bg overflow-hidden disabled:opacity-70"
+                  whileHover={{ scale: status === "submitting" ? 1 : 1.02 }}
+                  whileTap={{ scale: status === "submitting" ? 1 : 0.98 }}
                 >
                   <span className="absolute inset-0 accent-gradient" />
-                  <span className="relative z-10">Request Free Audit →</span>
+                  <span className="relative z-10">
+                    {status === "submitting" ? "Sending…" : "Request Free Audit →"}
+                  </span>
                 </motion.button>
 
                 <p className="font-mono text-xs text-muted/50 text-center mt-3 tracking-wide">
                   No commitment · Response within 24h
                 </p>
-              </div>
+              </form>
             ) : (
               <motion.div
-                className="flex flex-col items-center justify-center h-48 text-center"
+                className="flex flex-col items-center justify-center h-72 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
               >
                 <div className="w-12 h-12 rounded-full accent-gradient flex items-center justify-center mb-4">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M4 10L8 14L16 6" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 10L8 14L16 6" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <h4 className="font-display font-bold text-xl text-text-primary mb-2">We'll be in touch!</h4>
-                <p className="font-body text-sm text-muted">Check your inbox within 24 hours.</p>
+                <h4 className="font-display font-bold text-xl text-text-primary mb-2">
+                  {site.contactEndpoint ? "We'll be in touch!" : "One more step…"}
+                </h4>
+                <p className="font-body text-sm text-muted">
+                  {site.contactEndpoint
+                    ? "Thanks — we've received your request and will reply within 24 hours."
+                    : "Your email draft is ready — please ensure you hit 'Send' in your mail app!"}
+                </p>
               </motion.div>
             )}
 
             <div className="mt-6 pt-6 border-t border-stroke flex items-center justify-between">
               <span className="font-mono text-xs text-muted">Or email us directly</span>
-              <a href="mailto:hello@encytics.ai" className="font-mono text-xs accent-gradient-text hover:opacity-80 transition-opacity">
-                hello@encytics.ai ↗
+              <a href={`mailto:${site.email}`} className="font-mono text-xs accent-gradient-text hover:opacity-80 transition-opacity">
+                {site.email} ↗
               </a>
             </div>
           </motion.div>
@@ -178,8 +280,8 @@ export default function Contact() {
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-7 h-7 rounded-lg accent-gradient flex items-center justify-center">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" stroke="black" strokeWidth="1.5" fill="none"/>
-                    <circle cx="7" cy="7" r="2" fill="black"/>
+                    <path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" stroke="black" strokeWidth="1.5" fill="none" />
+                    <circle cx="7" cy="7" r="2" fill="black" />
                   </svg>
                 </div>
                 <span className="font-display font-bold text-text-primary">
@@ -196,15 +298,13 @@ export default function Contact() {
             </div>
 
             {/* Link columns */}
-            {Object.entries(footerLinks).map(([section, links]) => (
+            {Object.entries(footerLinks).map(([section, sectionLinks]) => (
               <div key={section}>
                 <div className="font-mono text-xs text-muted/50 tracking-wider uppercase mb-4">{section}</div>
                 <ul className="space-y-2.5">
-                  {links.map((link) => (
-                    <li key={link}>
-                      <a href="#" className="font-body text-sm text-muted hover:text-text-primary transition-colors">
-                        {link}
-                      </a>
+                  {sectionLinks.map((link) => (
+                    <li key={link.label}>
+                      <FooterAnchor link={link} />
                     </li>
                   ))}
                 </ul>
@@ -214,13 +314,23 @@ export default function Contact() {
 
           {/* Bottom bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-stroke/40">
-            <span className="font-mono text-xs text-muted/40 tracking-wider">
-              © 2025 Encytics AI Consulting. All rights reserved.
-            </span>
+            <div className="flex items-center gap-5">
+              <span className="font-mono text-xs text-muted/40 tracking-wider">
+                © {new Date().getFullYear()} {site.name} Consulting. All rights reserved.
+              </span>
+              <Link to="/privacy" className="font-mono text-xs text-muted/40 hover:text-muted transition-colors">Privacy</Link>
+              <Link to="/terms" className="font-mono text-xs text-muted/40 hover:text-muted transition-colors">Terms</Link>
+            </div>
             <div className="flex items-center gap-6">
-              {["LinkedIn", "Twitter", "GitHub", "Medium"].map((social) => (
-                <a key={social} href="#" className="font-mono text-xs text-muted/40 hover:text-muted transition-colors">
-                  {social}
+              {Object.entries(site.social).map(([label, url]) => (
+                <a
+                  key={label}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-xs text-muted/40 hover:text-muted transition-colors"
+                >
+                  {label}
                 </a>
               ))}
             </div>

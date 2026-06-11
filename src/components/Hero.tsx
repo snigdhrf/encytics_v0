@@ -59,7 +59,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden bg-bg">
+    <section id="home" className="relative min-h-screen flex flex-col overflow-hidden bg-bg">
       {/* Background elements */}
       <div className="absolute inset-0 dot-grid opacity-60" />
       <div className="absolute inset-0 bg-gradient-to-b from-bg via-transparent to-bg pointer-events-none" />

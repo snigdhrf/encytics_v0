@@ -1,58 +1,11 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { Link } from "react-router-dom";
+import { usePublishedCaseStudies } from "../lib/caseStudiesStore";
+import type { CaseStudy } from "../lib/types";
 
-const cases = [
-  {
-    client: "Global E-Commerce Platform",
-    industry: "Retail",
-    title: "Real-time recommendation engine reducing churn by 34%",
-    metrics: [
-      { label: "Revenue lift", value: "+$12M" },
-      { label: "Churn reduction", value: "-34%" },
-      { label: "Latency", value: "<30ms" },
-    ],
-    tags: ["ML", "Spark", "Redis", "Kafka"],
-    col: "md:col-span-7",
-    dark: true,
-  },
-  {
-    client: "FinTech Unicorn",
-    industry: "Finance",
-    title: "Fraud detection model achieving 99.7% precision",
-    metrics: [
-      { label: "Fraud prevented", value: "$8.2M" },
-      { label: "False positives", value: "-91%" },
-    ],
-    tags: ["XGBoost", "Feast", "Airflow"],
-    col: "md:col-span-5",
-    dark: false,
-  },
-  {
-    client: "Healthcare Provider Network",
-    industry: "Healthcare",
-    title: "Patient readmission prediction and population analytics",
-    metrics: [
-      { label: "Readmissions", value: "-28%" },
-      { label: "Cost savings", value: "$3.4M" },
-    ],
-    tags: ["Python", "Snowflake", "HIPAA"],
-    col: "md:col-span-5",
-    dark: false,
-  },
-  {
-    client: "Supply Chain Enterprise",
-    industry: "Logistics",
-    title: "End-to-end data lakehouse migration and demand forecasting",
-    metrics: [
-      { label: "Forecast accuracy", value: "94%" },
-      { label: "Data cost", value: "-60%" },
-      { label: "Query speed", value: "8× faster" },
-    ],
-    tags: ["Databricks", "dbt", "Delta Lake", "Prophet"],
-    col: "md:col-span-7",
-    dark: true,
-  },
-];
+// Bento layout pattern — cycles wide/narrow so any number of cards looks right.
+const colPattern = ["md:col-span-7", "md:col-span-5", "md:col-span-5", "md:col-span-7"];
 
 function MiniChart({ values }: { values: number[] }) {
   const max = Math.max(...values);
@@ -76,15 +29,17 @@ function MiniChart({ values }: { values: number[] }) {
   );
 }
 
-function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
+function CaseCard({ c, index }: { c: CaseStudy; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+  const col = colPattern[index % colPattern.length];
+  const dark = col.includes("7");
 
   return (
     <motion.div
       ref={ref}
-      className={`${c.col} group relative rounded-2xl border border-stroke overflow-hidden cursor-default ${
-        c.dark ? "bg-surface" : "bg-surface/50"
+      className={`${col} group relative rounded-2xl border border-stroke overflow-hidden ${
+        dark ? "bg-surface" : "bg-surface/50"
       }`}
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -131,9 +86,12 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
               </span>
             ))}
           </div>
-          <button className="font-mono text-xs text-muted group-hover:accent-gradient-text transition-all flex items-center gap-1.5 shrink-0">
+          <Link
+            to={`/case-studies/${c.slug}`}
+            className="font-mono text-xs text-muted group-hover:accent-gradient-text transition-all flex items-center gap-1.5 shrink-0"
+          >
             Read more <span className="text-lg leading-none">↗</span>
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -143,6 +101,11 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
 export default function CaseStudies() {
   const headerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(headerRef, { once: true, margin: "-60px" });
+  const published = usePublishedCaseStudies();
+  // Featured first, then most recent; show up to 4 on the homepage.
+  const cases = [...published]
+    .sort((a, b) => Number(b.featured) - Number(a.featured))
+    .slice(0, 4);
 
   return (
     <section id="case-studies" className="bg-bg py-24 md:py-32 relative">
@@ -168,19 +131,20 @@ export default function CaseStudies() {
               <span className="accent-gradient-text">speak in numbers</span>
             </h2>
           </div>
-          <motion.a
-            href="#"
-            className="hidden md:flex items-center gap-2 font-body text-sm text-muted hover:text-text-primary border border-stroke hover:border-accent/30 rounded-full px-5 py-2.5 transition-all"
-            whileHover={{ scale: 1.03 }}
-          >
-            View all case studies ↗
-          </motion.a>
+          <motion.div whileHover={{ scale: 1.03 }} className="hidden md:block">
+            <Link
+              to="/case-studies"
+              className="flex items-center gap-2 font-body text-sm text-muted hover:text-text-primary border border-stroke hover:border-accent/30 rounded-full px-5 py-2.5 transition-all"
+            >
+              View all case studies ↗
+            </Link>
+          </motion.div>
         </motion.div>
 
         {/* Bento grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
           {cases.map((c, i) => (
-            <CaseCard key={i} c={c} index={i} />
+            <CaseCard key={c.id} c={c} index={i} />
           ))}
         </div>
       </div>
