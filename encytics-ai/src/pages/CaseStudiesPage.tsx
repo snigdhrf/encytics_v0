@@ -13,7 +13,7 @@ export default function CaseStudiesPage() {
         description="Real outcomes from our data engineering, AI, and analytics engagements."
         path="/case-studies"
       />
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 py-20">
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 py-20">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-px w-8 bg-accent/50" />
           <span className="font-mono text-xs text-muted tracking-[0.3em] uppercase">Our Work</span>

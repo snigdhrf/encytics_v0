@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <SubPageLayout>
       <Seo title="Page not found" path="/404" />
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 py-32 text-center">
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 py-32 text-center">
         <div className="font-display font-bold text-7xl md:text-9xl accent-gradient-text mb-4">
           404
         </div>

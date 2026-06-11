@@ -70,7 +70,7 @@ export default function StatsSection() {
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-accent/3 blur-[150px] pointer-events-none" />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 relative z-10">
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 relative z-10">
         {/* Header */}
         <motion.div
           className="mb-16"

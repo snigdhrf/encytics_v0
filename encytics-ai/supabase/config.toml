@@ -1,0 +1,14 @@
+# Supabase CLI configuration — local development stack.
+# `supabase start` reads this file, boots the full stack in Docker
+# (Postgres :54322, API gateway :54321, Studio :54323), applies every file in
+# supabase/migrations/ in order, then runs supabase/seed.sql.
+# Reference: https://supabase.com/docs/guides/local-development/cli/config
+
+project_id = "encytics-ai"
+
+[db.seed]
+# Local-only workflow fixtures (draft/pending rows for the Content Studio).
+# Production seeds live in the migrations themselves so the dashboard
+# activation path (run 0001 in the SQL Editor) produces the launch content.
+enabled = true
+sql_paths = ["./seed.sql"]

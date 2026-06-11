@@ -1,0 +1,40 @@
+# ============================================================================
+# Local development stack — run from the repository root:
+#
+#   docker compose up
+#
+# Serves the frontend with hot reload at http://localhost:5173.
+#
+# The database is NOT a service here on purpose. The Supabase CLI
+# (`supabase start`, run inside encytics-ai/) manages its own Docker stack —
+# Postgres, auth, REST gateway, Studio — and recreating those containers in
+# this file would mean maintaining a worse copy of it. The two stacks meet in
+# the browser: the page served from this container calls the Supabase API on
+# host port 54321, so no cross-container networking is required.
+# ============================================================================
+
+name: encytics
+
+services:
+  web:
+    build:
+      context: ./encytics-ai
+      target: dev
+    ports:
+      - "5173:5173"
+    # Committed, non-secret development defaults. Per-machine Supabase keys
+    # live in encytics-ai/.env.development.local (gitignored), which Vite
+    # reads from the bind mount below — never from this file.
+    env_file:
+      - ./encytics-ai/.env.development
+    environment:
+      # Bind mounts on Docker Desktop (Windows/macOS) don't always deliver
+      # native file events; polling keeps hot reload reliable everywhere.
+      CHOKIDAR_USEPOLLING: "1"
+    volumes:
+      - ./encytics-ai:/app
+      # Keep the container's node_modules (Linux binaries) — never the host's.
+      - web_node_modules:/app/node_modules
+
+volumes:
+  web_node_modules:
