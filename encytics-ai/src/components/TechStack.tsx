@@ -55,7 +55,7 @@ export default function TechStack() {
       {/* Background hex pattern */}
       <div className="absolute inset-0 hex-bg opacity-15" />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 relative z-10">
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 relative z-10">
         {/* Tech stack */}
         <motion.div
           ref={headerRef}

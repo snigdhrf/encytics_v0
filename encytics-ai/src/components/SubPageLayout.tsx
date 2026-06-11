@@ -23,7 +23,7 @@ export default function SubPageLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-bg">
       {/* Header */}
       <header className="border-b border-stroke">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 py-5 flex items-center justify-between">
+        <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 py-5 flex items-center justify-between">
           <Logo />
           <nav className="flex items-center gap-6">
             <Link to="/" className="font-body text-sm text-muted hover:text-text-primary transition-colors">
@@ -48,7 +48,7 @@ export default function SubPageLayout({ children }: { children: ReactNode }) {
 
       {/* Footer */}
       <footer className="border-t border-stroke">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="font-mono text-xs text-muted/40 tracking-wider">
             © {new Date().getFullYear()} {site.name} Consulting. All rights reserved.
           </span>

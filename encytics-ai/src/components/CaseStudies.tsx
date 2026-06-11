@@ -112,7 +112,7 @@ export default function CaseStudies() {
       {/* Subtle horizontal line divider */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-stroke to-transparent" />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16">
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16">
         {/* Header */}
         <motion.div
           ref={headerRef}

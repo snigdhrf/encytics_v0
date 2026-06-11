@@ -151,7 +151,7 @@ export default function Services() {
     <section id="services" className="bg-bg py-24 md:py-32 relative overflow-hidden">
       <div className="absolute inset-0 dot-grid opacity-20" />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 relative z-10">
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16 relative z-10">
         {/* Header */}
         <motion.div
           ref={headerRef}

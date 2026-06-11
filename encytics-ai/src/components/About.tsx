@@ -67,7 +67,7 @@ export default function About() {
     <section id="about" className="bg-bg py-24 md:py-32 relative">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-stroke to-transparent" />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16" ref={ref}>
+      <div className="max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1760px] mx-auto px-6 md:px-10 lg:px-16" ref={ref}>
         {/* Header */}
         <motion.div
           className="mb-16 grid md:grid-cols-2 gap-12 items-end"
