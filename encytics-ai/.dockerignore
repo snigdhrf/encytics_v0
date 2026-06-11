@@ -1,0 +1,19 @@
+# Kept out of the Docker build context.
+node_modules
+dist
+*.log
+
+# Env files: only the committed, non-secret development defaults go in.
+.env
+.env.*
+!.env.development
+
+# Editor/OS noise
+.vscode
+.idea
+.DS_Store
+
+# Docs and audits aren't needed inside the image
+AUDIT.md
+IMPLEMENTATION.md
+README.md

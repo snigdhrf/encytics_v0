@@ -16,6 +16,9 @@ dist-ssr
 .env
 .env.*
 !.env.example
+# Committed dev defaults (non-secret); per-machine keys stay in
+# .env.development.local, which remains ignored by the .env.* rule above.
+!.env.development
 
 # Editor directories and files
 .vscode/*
